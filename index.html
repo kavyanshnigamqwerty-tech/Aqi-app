@@ -3,25 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AeroGlass - AQI Tracker</title>
-    <link rel="stylesheet" href="style.css">
+    <title>AeroGlass AQI Tracker</title>
+    <style>
+        /* Modern Glassmorphism UI */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-attachment: fixed;
+            color: white;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 40px;
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .aqi-number {
+            font-size: 4rem;
+            font-weight: 800;
+            margin: 10px 0;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .advice {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            min-height: 60px;
+        }
+
+        button {
+            background: white;
+            color: #1a2a6c;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        button:active { transform: scale(0.95); }
+
+        .loading-text { font-style: italic; opacity: 0.8; }
+    </style>
 </head>
 <body>
 
-    <div class="glass-container">
-        <h1 class="title">Air Quality Index</h1>
-        
-        <div id="aqi-display">
-            <p class="message">Allow location access to check your local air quality.</p>
+    <div class="glass-card">
+        <h2>Local Air Quality</h2>
+        <div id="app-content">
+            <p class="advice">Click the button to check the air quality at your current location.</p>
         </div>
-
-        <button id="check-btn" onclick="getLocation()">Check My Area</button>
-        
-        <div class="footer-info">
-            <p>Stay Safe. Breathe Clean.</p>
-        </div>
+        <button onclick="startApp()">Check My Area</button>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // STEP 1: Put your API key here
+        const API_KEY = 'c4dfc8fd7d0b4a1499fd9b95c892cf9a'; 
+
+        function startApp() {
+            const container = document.getElementById('app-content');
+            container.innerHTML = '<p class="loading-text">Getting your location...</p>';
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(getWeather, (err) => {
+                    container.innerHTML = `<p style="color: #ff4d4d;">Error: ${err.message}. Please enable GPS.</p>`;
+                });
+            } else {
+                container.innerHTML = "<p>Your browser doesn't support GPS.</p>";
+            }
+        }
+
+        async function getWeather(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const container = document.getElementById('app-content');
+            
+            // This URL is specifically for the Air Pollution API
+            const url = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("API Key is likely not active yet.");
+                
+                const data = await response.json();
+                const aqi = data.list[0].main.aqi; 
+                displayData(aqi);
+            } catch (error) {
+                container.innerHTML = `<p style="color: #ff4d4d;">${error.message}</p>`;
+            }
+        }
+
+        function displayData(aqi) {
+            const container = document.getElementById('app-content');
+            let config = {};
+
+            // OpenWeatherMap uses a 1-5 scale. Let's convert to readable info.
+            const grades = [
+                { label: "Good", color: "#00ff88", msg: "Air is fresh. Perfect for outdoor exercise!" },
+                { label: "Fair", color: "#ffee00", msg: "Moderate. Sensitive people should limit long outdoor stays." },
+                { label: "Moderate", color: "#ff9900", msg: "Polluted. May cause breathing issues over time." },
+                { label: "Poor", color: "#ff4444", msg: "Unhealthy. High risk of heart and lung irritation." },
+                { label: "Hazardous", color: "#cc00ff", msg: "Danger! Extremely high pollution levels. Stay indoors." }
+            ];
+
+            const result = grades[aqi - 1];
+
+            container.innerHTML = `
+                <div class="aqi-number" style="color: ${result.color}">${aqi}</div>
+                <div class="status-badge" style="color: ${result.color}">${result.label}</div>
+                <p class="advice">${result.msg}</p>
+                <hr style="border: 0.5px solid rgba(255,255,255,0.2); margin-bottom: 15px;">
+                <small style="opacity: 0.7;">Scale: 1 (Clean) to 5 (Hazardous)</small>
+            `;
+        }
+    </script>
 </body>
 </html>
