@@ -1,0 +1,76 @@
+/* Background styling */
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(45deg, #0f2027, #203a43, #2c5364); /* Cool dark gradient */
+    color: white;
+}
+
+/* The Glass Card */
+.glass-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    padding: 40px;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.title {
+    font-weight: 300;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+}
+
+/* AQI Circle Indicator */
+.aqi-val {
+    font-size: 3.5rem;
+    font-weight: bold;
+    margin: 20px 0;
+    text-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+}
+
+.category-label {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.advice-text {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+/* Glass Button */
+button {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 1rem;
+}
+
+button:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.footer-info {
+    margin-top: 25px;
+    font-size: 0.7rem;
+    opacity: 0.6;
+}
